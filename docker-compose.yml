@@ -1,0 +1,9 @@
+version: "3"
+services:
+  httpserver:
+    image: docker.io/amburskui/httpserver:v0.1
+    build:
+      dockerfile: Dockerfile
+    container_name: httpserver
+    ports:
+      - 8000:8000

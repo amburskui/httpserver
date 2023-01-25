@@ -1,0 +1,56 @@
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/amburskui/httpserver)
+      - blank
+      - dot
+
+  gofumpt:
+    lang-version: "1.19"
+    module-path: github.com/amburskui/httpserver
+    extra-rules: false
+
+  lll:
+    line-length: 180
+
+  funlen:
+    lines: 150
+    statements: 40
+
+linters:
+  enable-all: true
+
+  disable:
+    - errcheck
+    - exhaustruct
+    - varnamelen
+    - gochecknoglobals
+    - gochecknoinits
+    - gomnd
+    - tagliatelle
+    - wrapcheck
+    - godox
+
+    # temparary disable
+    - errchkjson
+    
+    # incompatable with generics
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
+
+    # deprecated
+    - deadcode
+    - exhaustivestruct
+    - golint
+    - ifshort
+    - interfacer
+    - maligned
+    - nosnakecase
+    - scopelint
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - varcheck
