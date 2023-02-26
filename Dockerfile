@@ -3,7 +3,7 @@ WORKDIR /app
 COPY [ "go.mod", "go.sum", "./" ]
 RUN go mod download 
 COPY . .
-RUN go build -o dist/httpserver .
+RUN go build -o dist/httpserver ./cmd/httpserver
 
 FROM alpine:3.16
 WORKDIR /app

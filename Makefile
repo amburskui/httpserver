@@ -1,19 +1,27 @@
-tag=v0.1
+tag := $(shell git describe --tags --abbrev=0)
 
-all: clean dist/httpserver
+.PHONY: all
 
-.PHONY: build build-docker
+all: clean build
+
+.PHONY: build docker-build docker-push
 
 build: dist/httpserver
 
 dist/httpserver: 
-	go build -o dist/httpserver .
+	go build -o dist/httpserver ./cmd/httpserver
 
-build-docker:
-	docker build -t docker.io/amburskui/httpserver:${tag} .
+docker-build:
+	docker build --platform linux/amd64 -t docker.io/amburskui/httpserver:${tag} .
 
-push:
+docker-push: docker-build
 	docker push docker.io/amburskui/httpserver:${tag}
 
 clean:
-	rm dist/httpserver
+	@rm -f dist/httpserver
+
+kube-apply:
+	minikube kubectl -- apply -f scripts/kube/
+
+kube-delete:
+	minikube kubectl -- delete -f scripts/kube/

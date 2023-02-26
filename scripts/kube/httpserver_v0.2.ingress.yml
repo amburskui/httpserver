@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: otus-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /?student=$1
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: httpserver
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: /otusapp/(\w+)/(.*)
+            backend:
+              service:
+                name: httpserver
+                port:
+                  number: 3000
