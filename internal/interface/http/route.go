@@ -9,8 +9,8 @@ import (
 
 func registerRoute(log *logrus.Logger) *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.Handle("/", withLogging(log, http.HandlerFunc(otusStudentHandler)))
 	mux.Handle("/health/", withLogging(log, http.HandlerFunc(healthHandler)))
+	mux.Handle("/", withLogging(log, http.HandlerFunc(otusStudentHandler)))
 
 	return mux
 }

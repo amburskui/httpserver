@@ -4,22 +4,17 @@ metadata:
   name: otus-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /?student=$1
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/otusapp/(\w+)/.* /?student=$1 last;
+      
 spec:
   ingressClassName: nginx
   rules:
     - host: arch.homework
       http:
         paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: httpserver
-                port:
-                  number: 3000
-          - pathType: Prefix
-            path: /otusapp/(\w+)/(.*)
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: httpserver
