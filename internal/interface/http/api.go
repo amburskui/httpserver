@@ -5,15 +5,18 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/amburskui/httpserver/internal/application/userservice"
 )
 
 type API struct {
-	log    *logrus.Logger
-	server *http.Server
+	log         *logrus.Logger
+	server      *http.Server
+	userService *userservice.Service
 }
 
-func New(log *logrus.Logger) *API {
-	mux := registerRoute(log)
+func New(log *logrus.Logger, service *userservice.Service) *API {
+	mux := registerRoute(log, service)
 
 	return &API{
 		log: log,
@@ -22,6 +25,7 @@ func New(log *logrus.Logger) *API {
 			Handler:           mux,
 			ReadHeaderTimeout: 3 * time.Second,
 		},
+		userService: service,
 	}
 }
 

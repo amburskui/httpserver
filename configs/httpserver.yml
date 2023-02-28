@@ -1,0 +1,8 @@
+listen: :8000
+
+database:
+  host: "192.168.44.145"
+  port: 5432
+  database: otusdb
+  username: postgres
+  password: password

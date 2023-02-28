@@ -2,14 +2,15 @@ tag := $(shell git describe --tags --abbrev=0)
 
 .PHONY: all
 
-all: clean build
+all: clean dist/httpserver  dist/dbmigrate
 
 .PHONY: build docker-build docker-push
 
-build: dist/httpserver
-
 dist/httpserver: 
 	go build -o dist/httpserver ./cmd/httpserver
+
+dist/dbmigrate: 
+	go build -o dist/httpserver ./cmd/dbmigrate
 
 docker-build:
 	docker build --platform linux/amd64 -t docker.io/amburskui/httpserver:${tag} .
