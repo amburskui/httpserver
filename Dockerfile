@@ -8,4 +8,5 @@ RUN go build -o dist/httpserver ./cmd/httpserver
 FROM alpine:3.16
 WORKDIR /app
 COPY --from=stage /app/dist/httpserver /app/
-CMD [ "/app/httpserver", "-p", "8000" ]
+COPY configs/httpserver.yml /app/
+CMD [ "/app/httpserver", "-c", "/app/httpserver.yml" ]
