@@ -11,7 +11,6 @@ import (
 
 	"github.com/amburskui/httpserver/configs"
 	"github.com/amburskui/httpserver/internal/application/userservice"
-	"github.com/amburskui/httpserver/internal/domain"
 	"github.com/amburskui/httpserver/internal/infrastructure/persistence"
 	httpAPI "github.com/amburskui/httpserver/internal/interface/http"
 )
@@ -26,8 +25,8 @@ func main() {
 
 	log := logrus.New()
 
-	var config configs.Config
-	if err := configs.Parse(opts.configPath, &config); err != nil {
+	config, err := configs.Parse(opts.configPath)
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -40,8 +39,6 @@ func main() {
 
 	storage := persistence.NewStorage(db)
 	userService := userservice.New(storage)
-
-	db.AutoMigrate(new(domain.User))
 
 	api := httpAPI.New(log, userService)
 	if err := api.ListenAndServe(config.Listen); err != nil {

@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: httpserver-configmap
+data:
+  listen.addr: ":8000"
+  database.host: postgres-service
+  database.port: "5432"
+  database.database: otusdb
+  database.username: postgres
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: httpserver-secret
+type: Opaque
+data:
+  database.username: cG9zdGdyZXM=
+  database.password: cGFzc3dvcmQ=
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver-service
+spec:
+  selector:
+    app: httpserver
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 8000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpserver-deployment
+  labels:
+    app: httpserver-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      labels:
+        app: httpserver
+    spec:
+      containers:
+        - name: httpserver
+          image: docker.io/amburskui/httpserver:v0.3
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: LISTEN_ADDR
+              valueFrom:
+                configMapRef:
+                  name: httpserver-configmap
+                  key: listen.addr
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapRef:
+                  name: httpserver-configmap
+                  key: database.host
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapRef:
+                  name: httpserver-configmap
+                  key: database.port
+            - name: DATABASE_DATABASE
+              valueFrom:
+                configMapRef:
+                  name: httpserver-configmap
+                  key: database.database
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: httpserver-secret
+                  key: database.username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: httpserver-secret
+                  key: database.password
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 1
+            periodSeconds: 3
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: httpserver-dbmigrate-job
+spec:
+  activeDeadlineSeconds: 20
+  backoffLimit: 2
+  template:
+    spec:
+      containers:
+        - name: httpserver-migrations
+          image: docker.io/amburskui/httpserver-migrations:v0.3
+          command: ["sh"]
+          args:
+            [
+              "-c",
+              "sleep 3 && /usr/bin/migrate -path /app -database $CONNECTION_STRING up",
+            ]
+          # command: [ "/usr/bin/migrate" ]
+          # args: ["-path", "/app/", "-database", "$CONNECTION_STRING", "up"]
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.host
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.port
+            - name: DATABASE_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.database
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: httpserver-secret
+                  key: database.username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: httpserver-secret
+                  key: database.password
+            - name: CONNECTION_STRING
+              value: "postgres://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_DATABASE)?sslmode=disable"
+      restartPolicy: Never

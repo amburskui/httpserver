@@ -5,3 +5,4 @@ database:
   port: 5432
   database: otusdb
   username: postgres
+  password: password

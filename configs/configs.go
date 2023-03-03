@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/caarlos0/env/v7"
 	"gopkg.in/yaml.v3"
 )
 
 type Database struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Database string `yaml:"database"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Host     string `yaml:"host" env:"DATABASE_HOST"`
+	Port     int    `yaml:"port" env:"DATABASE_PORT"`
+	Database string `yaml:"database" env:"DATABASE_DATABASE"`
+	Username string `yaml:"username" env:"DATABASE_USERNAME"`
+	Password string `yaml:"password" env:"DATABASE_PASSWORD"`
 }
 
 func (d *Database) DSN() string {
@@ -23,26 +24,27 @@ func (d *Database) DSN() string {
 }
 
 type Config struct {
-	Listen   string   `yaml:"listen"`
+	Listen   string   `yaml:"listen" env:"LISTEN_ADDR"`
 	Database Database `yaml:"database"`
 }
 
-func Parse[T Config | Database](configPath string, config *T) error {
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		return err
+func Parse(path string) (*Config, error) {
+	var config *Config
+
+	if path != "" {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := yaml.Unmarshal(data, config); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := env.Parse(config); err != nil {
+			return nil, err
+		}
 	}
 
-	password := os.Getenv("DATABASE_PASSWORD")
-
-	var c any = config
-
-	switch a := c.(type) {
-	case *Config:
-		a.Database.Password = password
-	case *Database:
-		a.Password = password
-	}
-
-	return yaml.Unmarshal(data, &config)
+	return config, nil
 }
