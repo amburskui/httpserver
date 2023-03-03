@@ -1,5 +1,4 @@
-# tag := $(shell git describe --tags --abbrev=0)
-GIT_TAG := v0.3
+GIT_TAG := $(shell git describe --tags --abbrev=0)
 MIGRATE_VERSION := v4.15.0
 
 .PHONY: all
