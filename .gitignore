@@ -1,3 +1,4 @@
 .vscode/
 dist/
-scripts/kube-prerequisites/hosts
+deployments/kube-prerequisites/hosts
+tools/bin/
