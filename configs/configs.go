@@ -29,7 +29,7 @@ type Config struct {
 }
 
 func Parse(path string) (*Config, error) {
-	var config *Config
+	var config Config
 
 	if path != "" {
 		data, err := os.ReadFile(path)
@@ -37,14 +37,14 @@ func Parse(path string) (*Config, error) {
 			return nil, err
 		}
 
-		if err := yaml.Unmarshal(data, config); err != nil {
+		if err := yaml.Unmarshal(data, &config); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := env.Parse(config); err != nil {
+		if err := env.Parse(&config); err != nil {
 			return nil, err
 		}
 	}
 
-	return config, nil
+	return &config, nil
 }
