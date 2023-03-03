@@ -93,7 +93,13 @@ spec:
               path: /health
               port: 8000
             initialDelaySeconds: 1
-            periodSeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 1
+            periodSeconds: 5
 
 ---
 apiVersion: batch/v1
