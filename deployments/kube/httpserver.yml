@@ -7,7 +7,6 @@ data:
   database.host: postgres-service
   database.port: "5432"
   database.database: otusdb
-  database.username: postgres
 
 ---
 apiVersion: v1
@@ -59,22 +58,22 @@ spec:
           env:
             - name: LISTEN_ADDR
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: httpserver-configmap
                   key: listen.addr
             - name: DATABASE_HOST
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: httpserver-configmap
                   key: database.host
             - name: DATABASE_PORT
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: httpserver-configmap
                   key: database.port
             - name: DATABASE_DATABASE
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: httpserver-configmap
                   key: database.database
             - name: DATABASE_USERNAME
