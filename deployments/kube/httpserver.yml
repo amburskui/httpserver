@@ -3,7 +3,6 @@ kind: ConfigMap
 metadata:
   name: httpserver-configmap
 data:
-  listen.addr: ":8000"
   database.host: postgres-service
   database.port: "5432"
   database.database: otusdb
@@ -29,7 +28,7 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 8000
+      targetPort: httpserver
 
 ---
 apiVersion: apps/v1
@@ -56,11 +55,6 @@ spec:
               memory: "128Mi"
               cpu: "500m"
           env:
-            - name: LISTEN_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: httpserver-configmap
-                  key: listen.addr
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
@@ -87,7 +81,8 @@ spec:
                   name: httpserver-secret
                   key: database.password
           ports:
-            - containerPort: 8000
+            - name: httpserver
+              containerPort: 8000
           livenessProbe:
             httpGet:
               path: /health
