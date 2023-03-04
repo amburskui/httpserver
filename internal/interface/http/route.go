@@ -78,7 +78,7 @@ func (u *userHandler) Get(c echo.Context) error {
 		return fmt.Errorf("user by id %d %w", userID, err)
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusOK, user)
 }
 
 func (u *userHandler) Update(c echo.Context) error {
@@ -106,7 +106,7 @@ func (u *userHandler) Update(c echo.Context) error {
 		return fmt.Errorf("user by id %d %w", userID, err)
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusOK, user)
 }
 
 func (u *userHandler) Delete(c echo.Context) error {
