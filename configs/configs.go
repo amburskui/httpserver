@@ -9,11 +9,11 @@ import (
 )
 
 type Database struct {
-	Host     string `yaml:"host" env:"DATABASE_HOST"`
-	Port     int    `yaml:"port" env:"DATABASE_PORT"`
-	Database string `yaml:"database" env:"DATABASE_DATABASE"`
-	Username string `yaml:"username" env:"DATABASE_USERNAME"`
-	Password string `yaml:"password" env:"DATABASE_PASSWORD"`
+	Host     string `yaml:"host" env:"DATABASE_HOST,required"`
+	Port     int    `yaml:"port" env:"DATABASE_PORT,required"`
+	Database string `yaml:"database" env:"DATABASE_DATABASE,required"`
+	Username string `yaml:"username" env:"DATABASE_USERNAME,required"`
+	Password string `yaml:"password" env:"DATABASE_PASSWORD,required"`
 }
 
 func (d *Database) DSN() string {
@@ -44,6 +44,10 @@ func Parse(path string) (*Config, error) {
 		if err := env.Parse(&config); err != nil {
 			return nil, err
 		}
+	}
+
+	if config.Listen == "" {
+		config.Listen = ":8000"
 	}
 
 	return &config, nil

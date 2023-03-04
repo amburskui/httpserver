@@ -9,4 +9,4 @@ FROM alpine:3.16
 WORKDIR /app
 COPY --from=stage /app/dist/httpserver /app/
 COPY configs/httpserver.yml /app/
-CMD [ "/app/httpserver", "-c", "/app/httpserver.yml" ]
+CMD [ "/app/httpserver" ]
