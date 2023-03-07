@@ -8,7 +8,7 @@ info:
     email: schetinnikov@gmail.com
 servers:
   - description: Example Server
-    url: http://example.domain/api/v1/
+    url: http://arch.homework/api/v1/
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/otus55/users/1.0.0
 tags:
@@ -29,7 +29,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
             examples:
               sample-user:
                 summary: Example
@@ -38,50 +38,50 @@ paths:
                   firstName: John
                   lastName: Doe
                   email: bestjohn@doe.com
-                  phone: '+71002003040'
+                  phone: "+71002003040"
         description: Created user object
         required: true
   /user/{userId}:
     parameters:
-    - name: userId
-      in: path
-      description: ID of user
-      required: true
-      schema:
-        type: integer
-        format: int64
+      - name: userId
+        in: path
+        description: ID of user
+        required: true
+        schema:
+          type: integer
+          format: int64
     get:
       tags:
         - user
       description: Returns a user based on a single ID, if the user does not have access to the user
       operationId: find user by id
       responses:
-        '200':
+        "200":
           description: user response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     delete:
       tags:
         - user
       description: deletes a single user based on the ID supplied
       operationId: deleteUser
       responses:
-        '204':
+        "204":
           description: user deleted
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     put:
       tags:
         - user
@@ -91,7 +91,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
             examples:
               sample-user:
                 summary: Example
@@ -99,18 +99,18 @@ paths:
                   firstName: Julie
                   lastName: Doe
                   email: bestjohn@doe.com
-                  phone: '+71004242424'
+                  phone: "+71004242424"
 
       responses:
-        '200':
+        "200":
           description: user updated
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-  
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     User:
@@ -151,6 +151,6 @@ components:
           schema:
             type: array
             items:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
       description: List of user object
       required: true
