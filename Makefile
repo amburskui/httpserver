@@ -33,5 +33,11 @@ kube-apply:
 kube-delete:
 	minikube kubectl -- delete -f deployments/kube/
 
+helm-install:
+	helm install httpserver-chart deployments/helm/httpserver-chart
+
+helm-uninstall:
+	helm uninstall httpserver-chart  
+
 tools/bin/migrate:
 	GOBIN=$(shell pwd)/tools/bin go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@$(MIGRATE_VERSION)
