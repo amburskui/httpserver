@@ -28,10 +28,10 @@ clean:
 	@rm -f dist/httpserver
 
 kube-apply:
-	minikube kubectl -- apply -f deployments/kube/
+	kubectl apply -f deployments/kube/
 
 kube-delete:
-	minikube kubectl -- delete -f deployments/kube/
+	kubectl delete -f deployments/kube/
 
 helm-install:
 	helm install httpserver-chart deployments/helm/httpserver-chart
