@@ -47,6 +47,36 @@ spec:
       labels:
         app: httpserver
     spec:
+      initContainers:
+        - name: wait-postgres
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -ec
+            - |
+              until (pg_isready -h $(DATABASE_HOST) -p $(DATABASE_PORT) -U $(DATABASE_USERNAME)); do
+                sleep 1
+              done
+          resources:
+            limits:
+              cpu: 50m
+              memory: 50Mi
+          env:
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.host
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.port
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: httpserver-secret
+                  key: database.username
       containers:
         - name: httpserver
           image: docker.io/amburskui/httpserver:v0.3
@@ -102,21 +132,45 @@ kind: Job
 metadata:
   name: httpserver-dbmigrate-job
 spec:
-  activeDeadlineSeconds: 60
+  activeDeadlineSeconds: 120
   backoffLimit: 2
   template:
     spec:
+      initContainers:
+        - name: wait-postgres
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -ec
+            - |
+              until (pg_isready -h $(DATABASE_HOST) -p $(DATABASE_PORT) -U $(DATABASE_USERNAME)); do
+                sleep 1
+              done
+          resources:
+            limits:
+              cpu: 50m
+              memory: 50Mi
+          env:
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.host
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: httpserver-configmap
+                  key: database.port
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: httpserver-secret
+                  key: database.username
       containers:
         - name: httpserver-migrations
           image: docker.io/amburskui/httpserver-migrations:v0.3
-          command: ["sh"]
-          args:
-            [
-              "-c",
-              "sleep 15 && /usr/bin/migrate -path /app -database $CONNECTION_STRING up",
-            ]
-          # command: [ "/usr/bin/migrate" ]
-          # args: ["-path", "/app/", "-database", "$CONNECTION_STRING", "up"]
+          command: ["/usr/bin/migrate"]
+          args: ["-path", "/app/", "-database", "$(CONNECTION_STRING)", "up"]
           resources:
             limits:
               memory: "128Mi"
