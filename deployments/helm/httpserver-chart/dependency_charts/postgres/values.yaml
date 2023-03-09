@@ -1,0 +1,12 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/postgres
+  tag: 15
+
+default:
+  data:
+    port: 5432
+    dbname: otusdb
+    username: postgres
+    password: password

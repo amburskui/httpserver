@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-postgres-configmap
+  labels:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  postgres.database: {{ .Values.default.data.dbname | quote }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-postgres-secret
+  labels:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+type: Opaque
+data:
+  postgres.username: {{ .Values.default.data.username | b64enc | quote }}
+  postgres.password: {{ .Values.default.data.password | b64enc | quote }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-postgres-volumeclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-postgres-service
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: {{ .Release.Name }}-postgres
+  ports:
+    - protocol: TCP
+      port: {{ .Values.default.data.port }}
+      targetPort: postgres
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-postgres-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres
+  serviceName: {{ .Release.Name }}-postgres
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-postgres
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-postgres-configmap
+                  key: postgres.database
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: postgres.username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: postgres.password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "exec pg_isready --host 127.0.0.1"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "exec pg_isready --host 127.0.0.1"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data/pgdata
+              name: {{ .Release.Name }}-postgres-data
+              subPath: {{ .Release.Name }}-postgres-subpath
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi

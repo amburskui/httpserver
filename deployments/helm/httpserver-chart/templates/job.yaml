@@ -1,4 +1,4 @@
-{{ if .Values.migration.auto }}
+{{ if .Values.database.migration.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
@@ -46,7 +46,7 @@ spec:
                   key: database.username
       containers:
         - name: {{ .Release.Name }}-migrations
-          image: {{ .Values.migration.image.repository }}:{{ .Values.migration.image.tag }}
+          image: {{ .Values.database.migration.image.repository }}:{{ .Values.database.migration.image.tag }}
           command: ["/usr/bin/migrate"]
           args: ["-path", "/app/", "-database", "$(CONNECTION_STRING)", "up"]
           resources:

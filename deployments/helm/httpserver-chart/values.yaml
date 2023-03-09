@@ -1,5 +1,3 @@
-# Default values for httpserver-chart.
-
 replicaCount: 2
 
 image:
@@ -9,12 +7,24 @@ image:
 domain: arch.homework
 
 database:
-  host: postgres-service
-  port: "5432"
-  dbname: otusdb
+  external: false
 
-migration:
-  auto: true
-  image:
-    repository: docker.io/amburskui/httpserver-migrations
-    tag: v0.3
+  # host: httpserver-database-chart
+  # port: 5432
+  # dbname: otusdb
+  # username: postgres
+  # password: password
+
+  migration:
+    enabled: true
+    image:
+      repository: docker.io/amburskui/httpserver-migrations
+      tag: v0.3
+
+httpserver-database-chart:
+  default:
+    data:
+      port: 5432
+      dbname: otusdb
+      username: postgres
+      password: password
