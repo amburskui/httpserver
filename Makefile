@@ -34,6 +34,7 @@ kube-delete:
 	kubectl delete -f deployments/kube/
 
 helm-install:
+	(cd deployments/helm/httpserver-chart && helm dependency update)
 	helm install httpserver-chart deployments/helm/httpserver-chart
 
 helm-uninstall:
