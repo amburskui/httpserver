@@ -2,3 +2,6 @@
 dist/
 deployments/kube-prerequisites/hosts
 tools/bin/
+deployments/helm/httpserver-chart/charts
+
+*.lock
